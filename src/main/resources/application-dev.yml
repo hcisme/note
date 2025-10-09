@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    username: root
+    password: emmmm000
+
+log:
+  path: D:\code\kotlin\Note\
+  root:
+    level: info
