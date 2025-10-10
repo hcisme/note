@@ -1,4 +1,4 @@
 package io.github.hcisme.note.mappers
 
-interface UserMapper {
+interface UserMapper<T, P> : BaseMapper<T, P> {
 }

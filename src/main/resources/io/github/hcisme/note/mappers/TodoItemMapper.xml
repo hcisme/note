@@ -12,4 +12,301 @@
         <result column="created_time" property="createdTime"/>
         <result column="updated_time" property="updatedTime"/>
     </resultMap>
+
+    <!-- 通用查询结果列-->
+    <sql id="base_column_list">
+        t.id,t.user_id,t.title,t.content,t.is_completed,t.created_time,t.updated_time
+    </sql>
+
+    <!-- 通用条件字段 -->
+    <sql id="base_condition_filed">
+        <if test="query.id != null and query.id!=''">
+            and t.id = #{query.id}
+        </if>
+        <if test="query.userId != null and query.userId!=''">
+            and t.user_id = #{query.userId}
+        </if>
+        <if test="query.title != null and query.title!=''">
+            and t.title = #{query.title}
+        </if>
+        <if test="query.content != null and query.content!=''">
+            and t.content = #{query.content}
+        </if>
+        <if test="query.completed != null">
+            and t.is_completed = #{query.completed}
+        </if>
+        <if test="query.createdTime != null and query.createdTime!=''">
+            <![CDATA[ and t.created_time=str_to_date(#{query.createdTime}, '%Y-%m-%d') ]]>
+        </if>
+        <if test="query.updatedTime != null and query.updatedTime!=''">
+            <![CDATA[ and t.updated_time=str_to_date(#{query.updatedTime}, '%Y-%m-%d') ]]>
+        </if>
+    </sql>
+
+    <!-- 通用查询条件列-->
+    <sql id="query_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+            <if test="query.idFuzzy!= null and query.idFuzzy!=''">
+                and t.id like concat('%', #{query.idFuzzy}, '%')
+            </if>
+            <if test="query.userIdFuzzy!= null and query.userIdFuzzy!=''">
+                and t.user_id like concat('%', #{query.userIdFuzzy}, '%')
+            </if>
+            <if test="query.titleFuzzy!= null and query.titleFuzzy!=''">
+                and t.title like concat('%', #{query.titleFuzzy}, '%')
+            </if>
+            <if test="query.contentFuzzy!= null and query.contentFuzzy!=''">
+                and t.content like concat('%', #{query.contentFuzzy}, '%')
+            </if>
+            <if test="query.createdTimeStart!= null and query.createdTimeStart!=''">
+                <![CDATA[ and t.created_time>=str_to_date(#{query.createdTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.createdTimeEnd!= null and query.createdTimeEnd!=''">
+                <![CDATA[ and t.created_time< str_to_date(#{query.createdTimeEnd}, '%Y-%m-%d') + interval 1 day ]]>
+            </if>
+            <if test="query.updatedTimeStart!= null and query.updatedTimeStart!=''">
+                <![CDATA[ and t.updated_time>=str_to_date(#{query.updatedTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.updatedTimeEnd!= null and query.updatedTimeEnd!=''">
+                <![CDATA[ and t.updated_time< str_to_date(#{query.updatedTimeEnd}, '%Y-%m-%d') + interval 1 day ]]>
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询集合-->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="base_column_list"/> FROM todo_item t
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
+
+    <!-- 查询数量-->
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM todo_item t
+        <include refid="query_condition"/>
+    </select>
+
+    <!-- 插入（匹配有值的字段）-->
+    <insert id="insert" parameterType="TodoItem">
+        INSERT INTO todo_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.id != null">
+                id,
+            </if>
+            <if test="bean.userId != null">
+                user_id,
+            </if>
+            <if test="bean.title != null">
+                title,
+            </if>
+            <if test="bean.content != null">
+                content,
+            </if>
+            <if test="bean.completed != null">
+                is_completed,
+            </if>
+            <if test="bean.createdTime != null">
+                created_time,
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.id!=null">
+                #{bean.id},
+            </if>
+            <if test="bean.userId!=null">
+                #{bean.userId},
+            </if>
+            <if test="bean.title!=null">
+                #{bean.title},
+            </if>
+            <if test="bean.content!=null">
+                #{bean.content},
+            </if>
+            <if test="bean.completed!=null">
+                #{bean.completed},
+            </if>
+            <if test="bean.createdTime!=null">
+                #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime!=null">
+                #{bean.updatedTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 插入或者更新（匹配有值的字段）-->
+    <insert id="insertOrUpdate" parameterType="TodoItem">
+        INSERT INTO todo_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.id != null">
+                id,
+            </if>
+            <if test="bean.userId != null">
+                user_id,
+            </if>
+            <if test="bean.title != null">
+                title,
+            </if>
+            <if test="bean.content != null">
+                content,
+            </if>
+            <if test="bean.completed != null">
+                is_completed,
+            </if>
+            <if test="bean.createdTime != null">
+                created_time,
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.id!=null">
+                #{bean.id},
+            </if>
+            <if test="bean.userId!=null">
+                #{bean.userId},
+            </if>
+            <if test="bean.title!=null">
+                #{bean.title},
+            </if>
+            <if test="bean.content!=null">
+                #{bean.content},
+            </if>
+            <if test="bean.completed!=null">
+                #{bean.completed},
+            </if>
+            <if test="bean.createdTime!=null">
+                #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime!=null">
+                #{bean.updatedTime},
+            </if>
+        </trim>
+        on DUPLICATE key update
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="bean.id!=null">
+                id = VALUES(id),
+            </if>
+            <if test="bean.userId!=null">
+                user_id = VALUES(user_id),
+            </if>
+            <if test="bean.title!=null">
+                title = VALUES(title),
+            </if>
+            <if test="bean.content!=null">
+                content = VALUES(content),
+            </if>
+            <if test="bean.completed!=null">
+                is_completed = VALUES(is_completed),
+            </if>
+            <if test="bean.createdTime!=null">
+                created_time = VALUES(created_time),
+            </if>
+            <if test="bean.updatedTime!=null">
+                updated_time = VALUES(updated_time),
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 添加（批量插入）-->
+    <insert id="insertBatch" parameterType="TodoItem">
+        INSERT INTO todo_item(
+        id,
+        user_id,
+        title,
+        content,
+        is_completed,
+        created_time,
+        updated_time
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.userId},
+            #{item.title},
+            #{item.content},
+            #{item.completed},
+            #{item.createdTime},
+            #{item.updatedTime}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 批量新增修改（批量插入）-->
+    <insert id="insertOrUpdateBatch" parameterType="TodoItem">
+        INSERT INTO todo_item(
+        id,
+        user_id,
+        title,
+        content,
+        is_completed,
+        created_time,
+        updated_time
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.userId},
+            #{item.title},
+            #{item.content},
+            #{item.completed},
+            #{item.createdTime},
+            #{item.updatedTime}
+            )
+        </foreach>
+        on DUPLICATE key update
+        id = VALUES(id),
+        user_id = VALUES(user_id),
+        title = VALUES(title),
+        content = VALUES(content),
+        is_completed = VALUES(is_completed),
+        created_time = VALUES(created_time),
+        updated_time = VALUES(updated_time)
+    </insert>
+
+    <!--多条件修改-->
+    <update id="updateByParam" parameterType="TodoItemQuery">
+        UPDATE todo_item t
+        <set>
+            <if test="bean.id != null">
+                id = #{bean.id},
+            </if>
+            <if test="bean.userId != null">
+                user_id = #{bean.userId},
+            </if>
+            <if test="bean.title != null">
+                title = #{bean.title},
+            </if>
+            <if test="bean.content != null">
+                content = #{bean.content},
+            </if>
+            <if test="bean.completed != null">
+                is_completed = #{bean.completed},
+            </if>
+            <if test="bean.createdTime != null">
+                created_time = #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time = #{bean.updatedTime},
+            </if>
+        </set>
+        <include refid="query_condition"/>
+    </update>
+
+    <!--多条件删除-->
+    <delete id="deleteByParam">
+        delete t from todo_item t
+        <include refid="query_condition"/>
+    </delete>
+
 </mapper>

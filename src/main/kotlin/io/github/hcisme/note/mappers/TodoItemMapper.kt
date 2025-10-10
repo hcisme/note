@@ -1,4 +1,4 @@
 package io.github.hcisme.note.mappers
 
-interface TodoItemMapper {
+interface TodoItemMapper<T, P> : BaseMapper<T, P> {
 }
