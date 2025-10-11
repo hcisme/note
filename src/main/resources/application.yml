@@ -37,6 +37,6 @@ server:
     context-path: /api
 
 mybatis:
-  type-aliases-package: io.github.hcisme.note.entity.pojo
+  type-aliases-package: io.github.hcisme.note.entity.pojo,io.github.hcisme.note.entity.query
   configuration:
     map-underscore-to-camel-case: true

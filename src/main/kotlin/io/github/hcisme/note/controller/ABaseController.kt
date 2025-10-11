@@ -2,10 +2,16 @@ package io.github.hcisme.note.controller
 
 import io.github.hcisme.note.entity.enums.ResponseCodeEnum
 import io.github.hcisme.note.entity.vo.ResponseVO
+import io.github.hcisme.note.entity.vo.TokenUserInfoVO
 import io.github.hcisme.note.exception.BusinessException
 import io.github.hcisme.note.redis.RedisUtils
+import io.github.hcisme.note.redis.cleanCaptcha
+import io.github.hcisme.note.redis.getCaptcha
+import io.github.hcisme.note.redis.getUserInfoByToken
 import jakarta.annotation.Resource
 import org.slf4j.LoggerFactory
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
 
 open class ABaseController {
     @Resource
@@ -45,36 +51,35 @@ open class ABaseController {
         return vo
     }
 
-//    /**
-//     * 检验 验证码是否正确 的方法
-//     *
-//     * `captcha` 前端传过来的 验证码
-//     *
-//     * `captchaKey` 前端传过来的 验证码KEY
-//     *
-//     * `onSuccess` 验证正确 触发此回调
-//     */
-//    protected fun <T> checkCaptcha(captcha: String, captchaKey: String, onSuccess: () -> ResponseVO<T>): ResponseVO<T> {
-//        val dbCaptcha = redisUtils.getCaptcha(captchaKey)
-//
-//        try {
-//            if (dbCaptcha == null) {
-//                throw BusinessException("验证码过期 请重新获取")
-//            }
-//            if (!captcha.equals(dbCaptcha, ignoreCase = true)) {
-//                throw BusinessException("图片验证码不正确")
-//            }
-//
-//            return onSuccess()
-//        } finally {
-//            redisUtils.cleanCaptcha(captchaKey)
-//        }
-//    }
-//
-//    protected fun getUserInfoByToken(): TokenUserInfoVO? {
-//        val request = (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes).request
-//        val userAgent = request.getHeader("User-Agent") ?: throw BusinessException("请求头缺少参数")
-//        val token: String? = request.getHeader("token")
-//        return redisUtils.getUserInfoByToken(token, checkIsWeb(userAgent))
-//    }
+    /**
+     * 检验 验证码是否正确 的方法
+     *
+     * `captcha` 前端传过来的 验证码
+     *
+     * `captchaKey` 前端传过来的 验证码KEY
+     *
+     * `onSuccess` 验证正确 触发此回调
+     */
+    protected fun <T> checkCaptcha(captcha: String, captchaKey: String, onSuccess: () -> ResponseVO<T>): ResponseVO<T> {
+        val dbCaptcha = redisUtils.getCaptcha(captchaKey)
+
+        try {
+            if (dbCaptcha == null) {
+                throw BusinessException("验证码过期 请重新获取")
+            }
+            if (!captcha.equals(dbCaptcha, ignoreCase = true)) {
+                throw BusinessException("图片验证码不正确")
+            }
+
+            return onSuccess()
+        } finally {
+            redisUtils.cleanCaptcha(captchaKey)
+        }
+    }
+
+    protected fun getUserInfoByToken(): TokenUserInfoVO? {
+        val request = (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes).request
+        val token: String? = request.getHeader("token")
+        return redisUtils.getUserInfoByToken(token)
+    }
 }
