@@ -6,43 +6,53 @@
     <!--实体映射-->
     <resultMap id="base_result_map" type="TodoItem">
         <!---->
-        <id column="id" property="id"  />
+        <id column="id" property="id"/>
         <!--创建者ID-->
-        <result column="user_id" property="userId"  />
+        <result column="user_id" property="userId"/>
         <!--标题-->
-        <result column="title" property="title"  />
+        <result column="title" property="title"/>
         <!--内容-->
-        <result column="content" property="content"  />
+        <result column="content" property="content"/>
         <!--是否完成 (0-未完成, 1-已完成)-->
-        <result column="is_completed" property="isCompleted"  />
+        <result column="is_completed" property="isCompleted"/>
+        <!--开始时间-->
+        <result column="start_time" property="startTime"/>
+        <!--结束时间-->
+        <result column="end_time" property="endTime"/>
         <!--创建时间-->
-        <result column="created_time" property="createdTime"  />
+        <result column="created_time" property="createdTime"/>
         <!--最后修改时间-->
-        <result column="updated_time" property="updatedTime"  />
+        <result column="updated_time" property="updatedTime"/>
     </resultMap>
 
 
     <!-- 通用查询结果列-->
     <sql id="base_column_list">
         t.id,t.user_id,t.title,t.content,t.is_completed,
-		 t.created_time,t.updated_time
+		 t.start_time,t.end_time,t.created_time,t.updated_time
     </sql>
 
     <sql id="base_condition_filed">
         <if test="query.id != null">
-            and  t.id = #{query.id}
+            and t.id = #{query.id}
         </if>
         <if test="query.userId != null and query.userId!=''">
-            and  t.user_id = #{query.userId}
+            and t.user_id = #{query.userId}
         </if>
         <if test="query.title != null and query.title!=''">
-            and  t.title = #{query.title}
+            and t.title = #{query.title}
         </if>
         <if test="query.content != null and query.content!=''">
-            and  t.content = #{query.content}
+            and t.content = #{query.content}
         </if>
         <if test="query.isCompleted != null">
-            and  t.is_completed = #{query.isCompleted}
+            and t.is_completed = #{query.isCompleted}
+        </if>
+        <if test="query.startTime != null and query.startTime!=''">
+            <![CDATA[ and  t.start_time=str_to_date(#{query.startTime}, '%Y-%m-%d') ]]>
+        </if>
+        <if test="query.endTime != null and query.endTime!=''">
+            <![CDATA[ and  t.end_time=str_to_date(#{query.endTime}, '%Y-%m-%d') ]]>
         </if>
         <if test="query.createdTime != null and query.createdTime!=''">
             <![CDATA[ and  t.created_time=str_to_date(#{query.createdTime}, '%Y-%m-%d') ]]>
@@ -54,22 +64,34 @@
     <!-- 通用条件列-->
     <sql id="base_condition">
         <where>
-            <include refid="base_condition_filed" />
+            <include refid="base_condition_filed"/>
         </where>
     </sql>
 
     <!-- 通用查询条件列-->
     <sql id="query_condition">
         <where>
-            <include refid="base_condition_filed" />
+            <include refid="base_condition_filed"/>
             <if test="query.userIdFuzzy!= null  and query.userIdFuzzy!=''">
-                and  t.user_id like concat('%', #{query.userIdFuzzy}, '%')
+                and t.user_id like concat('%', #{query.userIdFuzzy}, '%')
             </if>
             <if test="query.titleFuzzy!= null  and query.titleFuzzy!=''">
-                and  t.title like concat('%', #{query.titleFuzzy}, '%')
+                and t.title like concat('%', #{query.titleFuzzy}, '%')
             </if>
             <if test="query.contentFuzzy!= null  and query.contentFuzzy!=''">
-                and  t.content like concat('%', #{query.contentFuzzy}, '%')
+                and t.content like concat('%', #{query.contentFuzzy}, '%')
+            </if>
+            <if test="query.startTimeStart!= null and query.startTimeStart!=''">
+                <![CDATA[ and  t.start_time>=str_to_date(#{query.startTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.startTimeEnd!= null and query.startTimeEnd!=''">
+                <![CDATA[ and  t.start_time< date_sub(str_to_date(#{query.startTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+            </if>
+            <if test="query.endTimeStart!= null and query.endTimeStart!=''">
+                <![CDATA[ and  t.end_time>=str_to_date(#{query.endTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.endTimeEnd!= null and query.endTimeEnd!=''">
+                <![CDATA[ and  t.end_time< date_sub(str_to_date(#{query.endTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
             </if>
             <if test="query.createdTimeStart!= null and query.createdTimeStart!=''">
                 <![CDATA[ and  t.created_time>=str_to_date(#{query.createdTimeStart}, '%Y-%m-%d') ]]>
@@ -87,8 +109,11 @@
     </sql>
 
     <!-- 查询集合-->
-    <select id="selectList" resultMap="base_result_map" >
-        SELECT <include refid="base_column_list" /> FROM todo_item t <include refid="query_condition" />
+    <select id="selectList" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM todo_item t
+        <include refid="query_condition"/>
         <if test="query.orderBy!=null">
             order by ${query.orderBy}
         </if>
@@ -98,8 +123,9 @@
     </select>
 
     <!-- 查询数量-->
-    <select id="selectCount" resultType="java.lang.Integer" >
-        SELECT count(1) FROM todo_item t <include refid="query_condition" />
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM todo_item t
+        <include refid="query_condition"/>
     </select>
 
     <!-- 插入 （匹配有值的字段）-->
@@ -108,7 +134,7 @@
             SELECT LAST_INSERT_ID()
         </selectKey>
         INSERT INTO todo_item
-        <trim prefix="(" suffix=")" suffixOverrides="," >
+        <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="bean.userId != null">
                 user_id,
             </if>
@@ -121,6 +147,12 @@
             <if test="bean.isCompleted != null">
                 is_completed,
             </if>
+            <if test="bean.startTime != null">
+                start_time,
+            </if>
+            <if test="bean.endTime != null">
+                end_time,
+            </if>
             <if test="bean.createdTime != null">
                 created_time,
             </if>
@@ -128,7 +160,7 @@
                 updated_time,
             </if>
         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="bean.userId!=null">
                 #{bean.userId},
             </if>
@@ -140,6 +172,12 @@
             </if>
             <if test="bean.isCompleted!=null">
                 #{bean.isCompleted},
+            </if>
+            <if test="bean.startTime!=null">
+                #{bean.startTime},
+            </if>
+            <if test="bean.endTime!=null">
+                #{bean.endTime},
             </if>
             <if test="bean.createdTime!=null">
                 #{bean.createdTime},
@@ -169,6 +207,12 @@
             <if test="bean.isCompleted != null">
                 is_completed,
             </if>
+            <if test="bean.startTime != null">
+                start_time,
+            </if>
+            <if test="bean.endTime != null">
+                end_time,
+            </if>
             <if test="bean.createdTime != null">
                 created_time,
             </if>
@@ -192,6 +236,12 @@
             <if test="bean.isCompleted!=null">
                 #{bean.isCompleted},
             </if>
+            <if test="bean.startTime!=null">
+                #{bean.startTime},
+            </if>
+            <if test="bean.endTime!=null">
+                #{bean.endTime},
+            </if>
             <if test="bean.createdTime!=null">
                 #{bean.createdTime},
             </if>
@@ -213,6 +263,12 @@
             <if test="bean.isCompleted!=null">
                 is_completed = VALUES(is_completed),
             </if>
+            <if test="bean.startTime!=null">
+                start_time = VALUES(start_time),
+            </if>
+            <if test="bean.endTime!=null">
+                end_time = VALUES(end_time),
+            </if>
             <if test="bean.createdTime!=null">
                 created_time = VALUES(created_time),
             </if>
@@ -223,12 +279,15 @@
     </insert>
 
     <!-- 添加 （批量插入）-->
-    <insert id="insertBatch" parameterType="TodoItem" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertBatch" parameterType="TodoItem" useGeneratedKeys="true"
+            keyProperty="id">
         INSERT INTO todo_item(
         user_id,
         title,
         content,
         is_completed,
+        start_time,
+        end_time,
         created_time,
         updated_time
         )values
@@ -238,6 +297,8 @@
             #{item.title},
             #{item.content},
             #{item.isCompleted},
+            #{item.startTime},
+            #{item.endTime},
             #{item.createdTime},
             #{item.updatedTime}
             )
@@ -251,6 +312,8 @@
         title,
         content,
         is_completed,
+        start_time,
+        end_time,
         created_time,
         updated_time
         )values
@@ -260,6 +323,8 @@
             #{item.title},
             #{item.content},
             #{item.isCompleted},
+            #{item.startTime},
+            #{item.endTime},
             #{item.createdTime},
             #{item.updatedTime}
             )
@@ -269,6 +334,8 @@
         title = VALUES(title),
         content = VALUES(content),
         is_completed = VALUES(is_completed),
+        start_time = VALUES(start_time),
+        end_time = VALUES(end_time),
         created_time = VALUES(created_time),
         updated_time = VALUES(updated_time)
     </insert>
@@ -289,6 +356,12 @@
             <if test="bean.isCompleted != null">
                 is_completed = #{bean.isCompleted},
             </if>
+            <if test="bean.startTime != null">
+                start_time = #{bean.startTime},
+            </if>
+            <if test="bean.endTime != null">
+                end_time = #{bean.endTime},
+            </if>
             <if test="bean.createdTime != null">
                 created_time = #{bean.createdTime},
             </if>
@@ -296,13 +369,13 @@
                 updated_time = #{bean.updatedTime},
             </if>
         </set>
-        <include refid="query_condition" />
+        <include refid="query_condition"/>
     </update>
 
     <!--多条件删除-->
     <delete id="deleteByParam">
         delete t from todo_item t
-        <include refid="query_condition" />
+        <include refid="query_condition"/>
     </delete>
 
     <!-- 根据Id修改-->
@@ -321,6 +394,12 @@
             <if test="bean.isCompleted != null">
                 is_completed = #{bean.isCompleted},
             </if>
+            <if test="bean.startTime != null">
+                start_time = #{bean.startTime},
+            </if>
+            <if test="bean.endTime != null">
+                end_time = #{bean.endTime},
+            </if>
             <if test="bean.createdTime != null">
                 created_time = #{bean.createdTime},
             </if>
@@ -333,12 +412,16 @@
 
     <!-- 根据Id删除-->
     <delete id="deleteById">
-        delete from todo_item where id=#{id}
+        delete
+        from todo_item
+        where id = #{id}
     </delete>
 
     <!-- 根据PrimaryKey获取对象-->
-    <select id="selectById" resultMap="base_result_map" >
-        select <include refid="base_column_list" /> from todo_item t where id=#{id}
+    <select id="selectById" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from todo_item t where id=#{id}
     </select>
 
 </mapper>

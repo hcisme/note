@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.validation.BindException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.HandlerMethodValidationException
@@ -41,7 +42,8 @@ class AGlobalExceptionHandlerController : ABaseController() {
             is BindException,
             is MethodArgumentTypeMismatchException,
             is HandlerMethodValidationException,
-            is MissingServletRequestPartException -> {
+            is MissingServletRequestPartException,
+            is MissingServletRequestParameterException -> {
                 val map = HashMap<String, String>()
                 ajaxResponse.code = ResponseCodeEnum.CODE_600.code
                 ajaxResponse.info = ResponseCodeEnum.CODE_600.msg
@@ -61,6 +63,11 @@ class AGlobalExceptionHandlerController : ABaseController() {
 
                 if (e is MissingServletRequestPartException) {
                     map[e.requestPartName] = e.requestPartName + " 必传"
+                    ajaxResponse.data = map
+                }
+
+                if (e is MissingServletRequestParameterException) {
+                    map[e.parameterName] = e.parameterName + " 必传"
                     ajaxResponse.data = map
                 }
             }

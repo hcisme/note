@@ -36,6 +36,24 @@ class TodoItemQuery : BaseParam() {
     var isCompleted: Int? = null
 
     /**
+     * 开始时间
+     */
+    var startTime: String? = null
+
+    var startTimeStart: String? = null
+
+    var startTimeEnd: String? = null
+
+    /**
+     * 结束时间
+     */
+    var endTime: String? = null
+
+    var endTimeStart: String? = null
+
+    var endTimeEnd: String? = null
+
+    /**
      * 创建时间
      */
     var createdTime: String? = null

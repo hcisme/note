@@ -1,7 +1,9 @@
 package io.github.hcisme.note.entity.pojo
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import org.springframework.format.annotation.DateTimeFormat
 import java.util.*
+
 
 class TodoItem {
     /**
@@ -40,11 +42,26 @@ class TodoItem {
     var isCompleted: Int? = null
 
     /**
+     * 开始时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    var startTime: Date? = null
+
+    /**
+     * 结束时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    var endTime: Date? = null
+
+    /**
      * 创建时间
      * 数据库字段：created_time DATETIME NOT NULL
      * 记录待办事项创建的时间，索引(idx_created_time)
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     var createdTime: Date? = null
 
     /**
@@ -53,6 +70,7 @@ class TodoItem {
      * 记录待办事项最后修改的时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     var updatedTime: Date? = null
 
     override fun toString(): String {

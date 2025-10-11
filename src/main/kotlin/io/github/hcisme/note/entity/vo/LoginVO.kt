@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size
 class LoginVO {
     @NotEmpty(message = "账号不能为空")
     @Email(message = "邮箱格式不正确")
-    @Size(max = 50, message = "邮箱长度不能超过150个字符")
+    @Size(max = 50, message = "邮箱长度不能超过50个字符")
     lateinit var email: String
 
     @Pattern(regexp = Constants.REGEX_PASSWORD, message = "密码格式不正确")
