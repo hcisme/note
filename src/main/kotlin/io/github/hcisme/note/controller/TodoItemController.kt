@@ -5,6 +5,7 @@ import io.github.hcisme.note.entity.pojo.TodoItem
 import io.github.hcisme.note.entity.query.TodoItemQuery
 import io.github.hcisme.note.entity.vo.CreateTodoItemVO
 import io.github.hcisme.note.entity.vo.ResponseVO
+import io.github.hcisme.note.entity.vo.UpdateTodoItemVO
 import io.github.hcisme.note.service.TodoItemService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -34,7 +35,7 @@ class TodoItemController : ABaseController() {
             this.userId = userInfo.id
             this.createdTimeStart = time
             this.createdTimeEnd = time
-            this.orderBy = "t.start_time ASC"
+            this.orderBy = "t.created_time ASC"
         }
         val todoItems = todoItemService.findListByParam(todoItemQuery)
         return getSuccessResponseVO(todoItems)
@@ -43,15 +44,40 @@ class TodoItemController : ABaseController() {
     @Operation(summary = "创建待办")
     @Access
     @PostMapping("/createItem")
-    fun createTodoItem(@Validated @RequestBody todoItem: CreateTodoItemVO): ResponseVO<Any?> {
+    fun createItem(@Validated @RequestBody todoItem: CreateTodoItemVO): ResponseVO<Any?> {
         val userInfo = getUserInfoByToken()!!
-        todoItemService.createTodoItem(
+        todoItemService.createItem(
             userId = userInfo.id!!,
             title = todoItem.title,
             content = todoItem.content,
             startTime = todoItem.startTime,
             endTime = todoItem.endTime
         )
+        return getSuccessResponseVO(null)
+    }
+
+    @Operation(summary = "根据 id 更新待办")
+    @Access
+    @PutMapping("/updateItem")
+    fun updateItem(@Validated @RequestBody item: UpdateTodoItemVO): ResponseVO<Any?> {
+        val userInfo = getUserInfoByToken()!!
+        todoItemService.updateItem(
+            id = item.id!!,
+            userId = userInfo.id!!,
+            title = item.title,
+            content = item.content,
+            isCompleted = item.isCompleted!!,
+            startTime = item.startTime,
+            endTime = item.endTime
+        )
+        return getSuccessResponseVO(null)
+    }
+
+    @Operation(summary = "删除待办")
+    @Access
+    @DeleteMapping("/{id}")
+    fun deleteItem(@PathVariable id: Int): ResponseVO<Any?> {
+        todoItemService.deleteItem(id)
         return getSuccessResponseVO(null)
     }
 }
