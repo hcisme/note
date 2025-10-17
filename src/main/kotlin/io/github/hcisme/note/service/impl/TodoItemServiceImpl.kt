@@ -25,14 +25,21 @@ class TodoItemServiceImpl : TodoItemService {
         return this.todoItemMapper.selectCount(param);
     }
 
-    override fun createItem(userId: String, title: String, content: String, startTime: String, endTime: String) {
+    override fun createItem(
+        userId: String,
+        title: String,
+        content: String,
+        completed: Int,
+        startTime: String,
+        endTime: String
+    ) {
         val date = Date()
 
         val todoItem = TodoItem().apply {
             this.userId = userId
             this.title = title
             this.content = content
-            this.isCompleted = 0
+            this.completed = completed
             this.startTime = startTime.toDate()
             this.endTime = endTime.toDate()
             this.createdTime = date
@@ -47,7 +54,7 @@ class TodoItemServiceImpl : TodoItemService {
         userId: String,
         title: String,
         content: String,
-        isCompleted: Int,
+        completed: Int,
         startTime: String,
         endTime: String
     ) {
@@ -61,7 +68,7 @@ class TodoItemServiceImpl : TodoItemService {
             this.userId = userId
             this.title = title
             this.content = content
-            this.isCompleted = isCompleted
+            this.completed = completed
             this.startTime = startTime.toDate()
             this.endTime = endTime.toDate()
             this.updatedTime = Date()

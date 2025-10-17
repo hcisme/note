@@ -16,7 +16,7 @@ class UpdateTodoItemVO {
     @NotNull(message = "content不能为空")
     @Min(value = 0, message = "content只能为0或1")
     @Max(value = 1, message = "content只能为0或1")
-    var isCompleted: Int? = null
+    var completed: Int? = null
 
     @NotEmpty(message = "开始时间不能为空")
     lateinit var startTime: String

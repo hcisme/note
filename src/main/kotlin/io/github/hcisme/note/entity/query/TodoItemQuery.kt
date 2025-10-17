@@ -33,7 +33,7 @@ class TodoItemQuery : BaseParam() {
     /**
      * 是否完成 (0-未完成, 1-已完成)
      */
-    var isCompleted: Int? = null
+    var completed: Int? = null
 
     /**
      * 开始时间

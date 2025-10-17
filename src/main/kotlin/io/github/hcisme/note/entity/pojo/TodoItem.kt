@@ -38,7 +38,7 @@ class TodoItem {
      * 数据库字段：is_completed TINYINT(1) NOT NULL DEFAULT '0'
      * 0-未完成, 1-已完成，索引(idx_is_completed, idx_user_completed)
      */
-    var isCompleted: Int? = null
+    var completed: Int? = null
 
     /**
      * 开始时间
@@ -78,7 +78,7 @@ class TodoItem {
                 ", userId='" + userId + '\'' +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
-                ", isCompleted=" + isCompleted +
+                ", isCompleted=" + completed +
                 ", createdTime=" + createdTime +
                 ", updatedTime=" + updatedTime +
                 '}'

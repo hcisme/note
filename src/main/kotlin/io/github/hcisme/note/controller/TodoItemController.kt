@@ -37,21 +37,22 @@ class TodoItemController : ABaseController() {
             this.createdTimeEnd = time
             this.orderBy = "t.created_time ASC"
         }
-        val todoItems = todoItemService.findListByParam(todoItemQuery)
-        return getSuccessResponseVO(todoItems)
+        val items = todoItemService.findListByParam(todoItemQuery)
+        return getSuccessResponseVO(items)
     }
 
     @Operation(summary = "创建待办")
     @Access
     @PostMapping("/createItem")
-    fun createItem(@Validated @RequestBody todoItem: CreateTodoItemVO): ResponseVO<Any?> {
+    fun createItem(@Validated @RequestBody item: CreateTodoItemVO): ResponseVO<Any?> {
         val userInfo = getUserInfoByToken()!!
         todoItemService.createItem(
             userId = userInfo.id!!,
-            title = todoItem.title,
-            content = todoItem.content,
-            startTime = todoItem.startTime,
-            endTime = todoItem.endTime
+            title = item.title,
+            content = item.content,
+            completed = item.completed!!,
+            startTime = item.startTime,
+            endTime = item.endTime
         )
         return getSuccessResponseVO(null)
     }
@@ -66,7 +67,7 @@ class TodoItemController : ABaseController() {
             userId = userInfo.id!!,
             title = item.title,
             content = item.content,
-            isCompleted = item.isCompleted!!,
+            completed = item.completed!!,
             startTime = item.startTime,
             endTime = item.endTime
         )

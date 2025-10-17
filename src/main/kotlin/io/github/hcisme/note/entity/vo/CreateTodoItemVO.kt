@@ -1,7 +1,6 @@
 package io.github.hcisme.note.entity.vo
 
-import jakarta.validation.constraints.NotEmpty
-import jakarta.validation.constraints.Size
+import jakarta.validation.constraints.*
 
 class CreateTodoItemVO {
     @NotEmpty(message = "标题不能为空")
@@ -10,6 +9,11 @@ class CreateTodoItemVO {
 
     @NotEmpty(message = "描述不能为空")
     lateinit var content: String
+
+    @NotNull(message = "content不能为空")
+    @Min(value = 0, message = "content只能为0或1")
+    @Max(value = 1, message = "content只能为0或1")
+    var completed: Int? = null
 
     @NotEmpty(message = "开始时间不能为空")
     lateinit var startTime: String

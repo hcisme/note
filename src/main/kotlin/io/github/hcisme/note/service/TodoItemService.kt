@@ -11,14 +11,21 @@ interface TodoItemService {
 
     fun findCountByParam(param: TodoItemQuery): Int
 
-    fun createItem(userId: String, title: String, content: String, startTime: String, endTime: String)
+    fun createItem(
+        userId: String,
+        title: String,
+        content: String,
+        completed: Int,
+        startTime: String,
+        endTime: String
+    )
 
     fun updateItem(
         id: Int,
         userId: String,
         title: String,
         content: String,
-        isCompleted: Int,
+        completed: Int,
         startTime: String,
         endTime: String
     )
