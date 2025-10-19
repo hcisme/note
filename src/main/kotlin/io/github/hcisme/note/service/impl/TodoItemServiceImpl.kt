@@ -25,6 +25,10 @@ class TodoItemServiceImpl : TodoItemService {
         return this.todoItemMapper.selectCount(param);
     }
 
+    override fun findTodoItemById(id: Int): TodoItem? {
+        return todoItemMapper.selectById(id)
+    }
+
     override fun createItem(
         userId: String,
         title: String,

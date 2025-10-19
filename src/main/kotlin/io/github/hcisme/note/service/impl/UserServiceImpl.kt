@@ -73,6 +73,7 @@ class UserServiceImpl : UserService {
         return tokenUserInfoVO
     }
 
+    @Transactional(rollbackFor = [Exception::class])
     override fun updateUserInfo(userInfo: TokenUserInfoVO, email: String, username: String) {
         val userId = userInfo.id!!
         val dbInfo = userMapper.selectById(userId) ?: throw BusinessException(ResponseCodeEnum.CODE_500)

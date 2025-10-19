@@ -11,6 +11,8 @@ interface TodoItemService {
 
     fun findCountByParam(param: TodoItemQuery): Int
 
+    fun findTodoItemById(id: Int): TodoItem?
+
     fun createItem(
         userId: String,
         title: String,

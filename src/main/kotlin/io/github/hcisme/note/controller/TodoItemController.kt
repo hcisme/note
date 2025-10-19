@@ -41,6 +41,14 @@ class TodoItemController : ABaseController() {
         return getSuccessResponseVO(items)
     }
 
+    @Operation(summary = "通过id查询代办")
+    @Access
+    @GetMapping("/{id}")
+    fun getTodoById(@PathVariable id: Int): ResponseVO<TodoItem?> {
+        val item = todoItemService.findTodoItemById(id = id)
+        return getSuccessResponseVO(item)
+    }
+
     @Operation(summary = "创建待办")
     @Access
     @PostMapping("/createItem")
