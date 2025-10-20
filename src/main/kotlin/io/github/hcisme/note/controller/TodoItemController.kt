@@ -35,7 +35,7 @@ class TodoItemController : ABaseController() {
             this.userId = userInfo.id
             this.createdTimeStart = time
             this.createdTimeEnd = time
-            this.orderBy = "t.created_time ASC"
+            this.orderBy = "t.start_time ASC"
         }
         val items = todoItemService.findListByParam(todoItemQuery)
         return getSuccessResponseVO(items)
