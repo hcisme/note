@@ -2,9 +2,17 @@ spring:
   config:
     activate:
       on-profile: prod
+  datasource:
+    username: note
+    password: emmmm000
 
 springdoc:
   api-docs:
     enabled: false # 关闭OpenApi接口
   swagger-ui:
     enabled: false # 关闭swagger界面
+
+log:
+  path: /www/note/
+  root:
+    level: debug
