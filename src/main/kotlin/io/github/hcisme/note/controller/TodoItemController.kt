@@ -33,8 +33,8 @@ class TodoItemController : ABaseController() {
 
         val todoItemQuery = TodoItemQuery().apply {
             this.userId = userInfo.id
-            this.createdTimeStart = time
-            this.createdTimeEnd = time
+            this.startTimeStart = time
+            this.startTimeEnd = time
             this.orderBy = "t.start_time ASC"
         }
         val items = todoItemService.findListByParam(todoItemQuery)
