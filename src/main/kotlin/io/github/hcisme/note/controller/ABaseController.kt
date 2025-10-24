@@ -1,5 +1,6 @@
 package io.github.hcisme.note.controller
 
+import io.github.hcisme.note.config.AppConfig
 import io.github.hcisme.note.entity.enums.ResponseCodeEnum
 import io.github.hcisme.note.entity.vo.ResponseVO
 import io.github.hcisme.note.entity.vo.TokenUserInfoVO
@@ -9,9 +10,13 @@ import io.github.hcisme.note.redis.cleanCaptcha
 import io.github.hcisme.note.redis.getCaptcha
 import io.github.hcisme.note.redis.getUserInfoByToken
 import jakarta.annotation.Resource
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import java.io.File
+import java.io.FileInputStream
+import java.net.URLEncoder
 
 open class ABaseController {
     @Resource
@@ -81,5 +86,44 @@ open class ABaseController {
         val request = (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes).request
         val token: String? = request.getHeader("token")
         return redisUtils.getUserInfoByToken(token)
+    }
+
+    protected fun checkUploadFileAccess(username: String, password: String, appConfig: AppConfig) {
+        if (username != appConfig.account || password != appConfig.password) {
+            throw BusinessException("用户名或密码错误")
+        }
+    }
+
+    protected fun readFile(response: HttpServletResponse, filePath: String) {
+        val file = File(filePath)
+        if (!file.exists()) {
+            return
+        }
+        val fileName = file.name
+        val encodedFileName = try {
+            URLEncoder.encode(fileName, "UTF-8").replace("+", "%20")
+        } catch (_: Exception) {
+            fileName
+        }
+        response.setHeader("Content-Length", file.length().toString())
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''$encodedFileName")
+        try {
+            val output = response.outputStream
+            val input = FileInputStream(file)
+
+            input.use { inputStream ->
+                output.use { outputStream ->
+                    val buffer = ByteArray(1024)
+                    var bytesRead: Int
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        outputStream.write(buffer, 0, bytesRead)
+                    }
+                    outputStream.flush()
+                }
+            }
+        } catch (e: Exception) {
+            logger.error("读取文件异常", e)
+            throw BusinessException("下载文件异常")
+        }
     }
 }

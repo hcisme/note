@@ -3,7 +3,7 @@ package io.github.hcisme.note.entity.vo
 import jakarta.validation.constraints.*
 
 class UpdateTodoItemVO {
-    @NotNull(message = "content不能为空")
+    @NotNull(message = "id不能为空")
     var id: Int? = null
 
     @NotEmpty(message = "标题不能为空")

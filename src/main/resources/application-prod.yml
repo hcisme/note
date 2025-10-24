@@ -16,3 +16,5 @@ log:
   path: /www/note/
   root:
     level: debug
+project:
+  folder: /www/note/

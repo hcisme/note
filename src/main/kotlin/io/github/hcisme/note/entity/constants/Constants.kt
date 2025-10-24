@@ -41,7 +41,18 @@ object Constants {
      */
     const val REDIS_KEY_TOKEN_EXPIRES_15_DAY = REDIS_KEY_EXPIRES_ONE_DAY * 15
 
+    const val ZERO = 0
     const val LENGTH_11 = 11
+    const val LENGTH_8 = 8
 
     const val USERID_PREFIX_KEY = "U"
+
+    const val UPLOAD_FOLDER = "file/"
+
+    const val UPLOAD_APP_TEMP_FOLDER = "temp/"
+    const val UPLOAD_APP_FOLDER = "app/"
+    const val APP_SUFFIX = ".apk"
+    const val TEMP_APP_SUFFIX = ".part"
+
+    const val REDIS_KEY_UPLOADING_FILE = "$REDIS_KEY_PREFIX:uploading"
 }

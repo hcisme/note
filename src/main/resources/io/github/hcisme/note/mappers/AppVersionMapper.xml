@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.hcisme.note.mappers.AppVersionMapper">
+
+    <!--实体映射-->
+    <resultMap id="base_result_map" type="AppVersion">
+        <!---->
+        <id column="id" property="id"/>
+        <!--版本号(数字)，用于比较版本新旧-->
+        <result column="version_code" property="versionCode"/>
+        <!--版本名称(字符串)，如：1.0.0-->
+        <result column="version_name" property="versionName"/>
+        <!--下载地址-->
+        <result column="download_url" property="downloadUrl"/>
+        <!--文件大小(字节)-->
+        <result column="file_size" property="fileSize"/>
+        <!--文件MD5校验值-->
+        <result column="file_md5" property="fileMd5"/>
+        <!--更新内容-->
+        <result column="update_content" property="updateContent"/>
+        <!--发布时间-->
+        <result column="publish_time" property="publishTime"/>
+        <!--创建时间-->
+        <result column="created_time" property="createdTime"/>
+        <!--更新时间-->
+        <result column="updated_time" property="updatedTime"/>
+    </resultMap>
+
+
+    <!-- 通用查询结果列-->
+    <sql id="base_column_list">
+        a.id,a.version_code,a.version_name,a.download_url,a.file_size,
+		 a.file_md5,a.update_content,a.publish_time,a.created_time,a.updated_time
+
+    </sql>
+
+    <sql id="base_condition_filed">
+        <if test="query.id != null">
+            and a.id = #{query.id}
+        </if>
+        <if test="query.versionCode != null">
+            and a.version_code = #{query.versionCode}
+        </if>
+        <if test="query.versionName != null and query.versionName!=''">
+            and a.version_name = #{query.versionName}
+        </if>
+        <if test="query.downloadUrl != null and query.downloadUrl!=''">
+            and a.download_url = #{query.downloadUrl}
+        </if>
+        <if test="query.fileSize != null">
+            and a.file_size = #{query.fileSize}
+        </if>
+        <if test="query.fileMd5 != null and query.fileMd5!=''">
+            and a.file_md5 = #{query.fileMd5}
+        </if>
+        <if test="query.updateContent != null and query.updateContent!=''">
+            and a.update_content = #{query.updateContent}
+        </if>
+        <if test="query.publishTime != null and query.publishTime!=''">
+            <![CDATA[ and  a.publish_time=str_to_date(#{query.publishTime}, '%Y-%m-%d') ]]>
+        </if>
+        <if test="query.createdTime != null and query.createdTime!=''">
+            <![CDATA[ and  a.created_time=str_to_date(#{query.createdTime}, '%Y-%m-%d') ]]>
+        </if>
+        <if test="query.updatedTime != null and query.updatedTime!=''">
+            <![CDATA[ and  a.updated_time=str_to_date(#{query.updatedTime}, '%Y-%m-%d') ]]>
+        </if>
+    </sql>
+    <!-- 通用条件列-->
+    <sql id="base_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+        </where>
+    </sql>
+
+    <!-- 通用查询条件列-->
+    <sql id="query_condition">
+        <where>
+            <include refid="base_condition_filed"/>
+            <if test="query.versionNameFuzzy!= null  and query.versionNameFuzzy!=''">
+                and a.version_name like concat('%', #{query.versionNameFuzzy}, '%')
+            </if>
+            <if test="query.downloadUrlFuzzy!= null  and query.downloadUrlFuzzy!=''">
+                and a.download_url like concat('%', #{query.downloadUrlFuzzy}, '%')
+            </if>
+            <if test="query.fileMd5Fuzzy!= null  and query.fileMd5Fuzzy!=''">
+                and a.file_md5 like concat('%', #{query.fileMd5Fuzzy}, '%')
+            </if>
+            <if test="query.updateContentFuzzy!= null  and query.updateContentFuzzy!=''">
+                and a.update_content like concat('%', #{query.updateContentFuzzy}, '%')
+            </if>
+            <if test="query.publishTimeStart!= null and query.publishTimeStart!=''">
+                <![CDATA[ and  a.publish_time>=str_to_date(#{query.publishTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.publishTimeEnd!= null and query.publishTimeEnd!=''">
+                <![CDATA[ and  a.publish_time< date_sub(str_to_date(#{query.publishTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+            </if>
+            <if test="query.createdTimeStart!= null and query.createdTimeStart!=''">
+                <![CDATA[ and  a.created_time>=str_to_date(#{query.createdTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.createdTimeEnd!= null and query.createdTimeEnd!=''">
+                <![CDATA[ and  a.created_time< date_sub(str_to_date(#{query.createdTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+            </if>
+            <if test="query.updatedTimeStart!= null and query.updatedTimeStart!=''">
+                <![CDATA[ and  a.updated_time>=str_to_date(#{query.updatedTimeStart}, '%Y-%m-%d') ]]>
+            </if>
+            <if test="query.updatedTimeEnd!= null and query.updatedTimeEnd!=''">
+                <![CDATA[ and  a.updated_time< date_sub(str_to_date(#{query.updatedTimeEnd},'%Y-%m-%d'),interval -1 day) ]]>
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询集合-->
+    <select id="selectList" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM app_version a
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
+
+    <!-- 查询数量-->
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM app_version a
+        <include refid="query_condition"/>
+    </select>
+
+    <!-- 插入 （匹配有值的字段）-->
+    <insert id="insert" parameterType="AppVersion">
+        <selectKey keyProperty="bean.id" resultType="Long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO app_version
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.versionCode != null">
+                version_code,
+            </if>
+            <if test="bean.versionName != null">
+                version_name,
+            </if>
+            <if test="bean.downloadUrl != null">
+                download_url,
+            </if>
+            <if test="bean.fileSize != null">
+                file_size,
+            </if>
+            <if test="bean.fileMd5 != null">
+                file_md5,
+            </if>
+            <if test="bean.updateContent != null">
+                update_content,
+            </if>
+            <if test="bean.publishTime != null">
+                publish_time,
+            </if>
+            <if test="bean.createdTime != null">
+                created_time,
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.versionCode!=null">
+                #{bean.versionCode},
+            </if>
+            <if test="bean.versionName!=null">
+                #{bean.versionName},
+            </if>
+            <if test="bean.downloadUrl!=null">
+                #{bean.downloadUrl},
+            </if>
+            <if test="bean.fileSize!=null">
+                #{bean.fileSize},
+            </if>
+            <if test="bean.fileMd5!=null">
+                #{bean.fileMd5},
+            </if>
+            <if test="bean.updateContent!=null">
+                #{bean.updateContent},
+            </if>
+            <if test="bean.publishTime!=null">
+                #{bean.publishTime},
+            </if>
+            <if test="bean.createdTime!=null">
+                #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime!=null">
+                #{bean.updatedTime},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 插入或者更新 （匹配有值的字段）-->
+    <insert id="insertOrUpdate" parameterType="AppVersion">
+        INSERT INTO app_version
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bean.id != null">
+                id,
+            </if>
+            <if test="bean.versionCode != null">
+                version_code,
+            </if>
+            <if test="bean.versionName != null">
+                version_name,
+            </if>
+            <if test="bean.downloadUrl != null">
+                download_url,
+            </if>
+            <if test="bean.fileSize != null">
+                file_size,
+            </if>
+            <if test="bean.fileMd5 != null">
+                file_md5,
+            </if>
+            <if test="bean.updateContent != null">
+                update_content,
+            </if>
+            <if test="bean.publishTime != null">
+                publish_time,
+            </if>
+            <if test="bean.createdTime != null">
+                created_time,
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bean.id!=null">
+                #{bean.id},
+            </if>
+            <if test="bean.versionCode!=null">
+                #{bean.versionCode},
+            </if>
+            <if test="bean.versionName!=null">
+                #{bean.versionName},
+            </if>
+            <if test="bean.downloadUrl!=null">
+                #{bean.downloadUrl},
+            </if>
+            <if test="bean.fileSize!=null">
+                #{bean.fileSize},
+            </if>
+            <if test="bean.fileMd5!=null">
+                #{bean.fileMd5},
+            </if>
+            <if test="bean.updateContent!=null">
+                #{bean.updateContent},
+            </if>
+            <if test="bean.publishTime!=null">
+                #{bean.publishTime},
+            </if>
+            <if test="bean.createdTime!=null">
+                #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime!=null">
+                #{bean.updatedTime},
+            </if>
+        </trim>
+        on DUPLICATE key update
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="bean.versionCode!=null">
+                version_code = VALUES(version_code),
+            </if>
+            <if test="bean.versionName!=null">
+                version_name = VALUES(version_name),
+            </if>
+            <if test="bean.downloadUrl!=null">
+                download_url = VALUES(download_url),
+            </if>
+            <if test="bean.fileSize!=null">
+                file_size = VALUES(file_size),
+            </if>
+            <if test="bean.fileMd5!=null">
+                file_md5 = VALUES(file_md5),
+            </if>
+            <if test="bean.updateContent!=null">
+                update_content = VALUES(update_content),
+            </if>
+            <if test="bean.publishTime!=null">
+                publish_time = VALUES(publish_time),
+            </if>
+            <if test="bean.createdTime!=null">
+                created_time = VALUES(created_time),
+            </if>
+            <if test="bean.updatedTime!=null">
+                updated_time = VALUES(updated_time),
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 添加 （批量插入）-->
+    <insert id="insertBatch" parameterType="AppVersion" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO app_version(
+        version_code,
+        version_name,
+        download_url,
+        file_size,
+        file_md5,
+        update_content,
+        publish_time,
+        created_time,
+        updated_time
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.versionCode},
+            #{item.versionName},
+            #{item.downloadUrl},
+            #{item.fileSize},
+            #{item.fileMd5},
+            #{item.updateContent},
+            #{item.publishTime},
+            #{item.createdTime},
+            #{item.updatedTime}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 批量新增修改 （批量插入）-->
+    <insert id="insertOrUpdateBatch" parameterType="AppVersion">
+        INSERT INTO app_version(
+        version_code,
+        version_name,
+        download_url,
+        file_size,
+        file_md5,
+        update_content,
+        publish_time,
+        created_time,
+        updated_time
+        )values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.versionCode},
+            #{item.versionName},
+            #{item.downloadUrl},
+            #{item.fileSize},
+            #{item.fileMd5},
+            #{item.updateContent},
+            #{item.publishTime},
+            #{item.createdTime},
+            #{item.updatedTime}
+            )
+        </foreach>
+        on DUPLICATE key update
+        version_code = VALUES(version_code),
+        version_name = VALUES(version_name),
+        download_url = VALUES(download_url),
+        file_size = VALUES(file_size),
+        file_md5 = VALUES(file_md5),
+        update_content = VALUES(update_content),
+        publish_time = VALUES(publish_time),
+        created_time = VALUES(created_time),
+        updated_time = VALUES(updated_time)
+    </insert>
+
+    <!--多条件修改-->
+    <update id="updateByParam" parameterType="AppVersionQuery">``
+        UPDATE app_version a
+        <set>
+            <if test="bean.versionCode != null">
+                version_code = #{bean.versionCode},
+            </if>
+            <if test="bean.versionName != null">
+                version_name = #{bean.versionName},
+            </if>
+            <if test="bean.downloadUrl != null">
+                download_url = #{bean.downloadUrl},
+            </if>
+            <if test="bean.fileSize != null">
+                file_size = #{bean.fileSize},
+            </if>
+            <if test="bean.fileMd5 != null">
+                file_md5 = #{bean.fileMd5},
+            </if>
+            <if test="bean.updateContent != null">
+                update_content = #{bean.updateContent},
+            </if>
+            <if test="bean.publishTime != null">
+                publish_time = #{bean.publishTime},
+            </if>
+            <if test="bean.createdTime != null">
+                created_time = #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time = #{bean.updatedTime},
+            </if>
+        </set>
+        <include refid="query_condition"/>
+    </update>
+
+    <!--多条件删除-->
+    <delete id="deleteByParam">
+        delete a from app_version a
+        <include refid="query_condition"/>
+    </delete>
+
+    <!-- 根据Id修改-->
+    <update id="updateById" parameterType="AppVersion">
+        UPDATE app_version
+        <set>
+            <if test="bean.versionCode != null">
+                version_code = #{bean.versionCode},
+            </if>
+            <if test="bean.versionName != null">
+                version_name = #{bean.versionName},
+            </if>
+            <if test="bean.downloadUrl != null">
+                download_url = #{bean.downloadUrl},
+            </if>
+            <if test="bean.fileSize != null">
+                file_size = #{bean.fileSize},
+            </if>
+            <if test="bean.fileMd5 != null">
+                file_md5 = #{bean.fileMd5},
+            </if>
+            <if test="bean.updateContent != null">
+                update_content = #{bean.updateContent},
+            </if>
+            <if test="bean.publishTime != null">
+                publish_time = #{bean.publishTime},
+            </if>
+            <if test="bean.createdTime != null">
+                created_time = #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time = #{bean.updatedTime},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!-- 根据Id删除-->
+    <delete id="deleteById">
+        delete
+        from app_version
+        where id = #{id}
+    </delete>
+
+    <!-- 根据PrimaryKey获取对象-->
+    <select id="selectById" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from app_version a where id=#{id}
+    </select>
+
+    <!-- 根据VersionCode修改-->
+    <update id="updateByVersionCode" parameterType="AppVersion">
+        UPDATE app_version
+        <set>
+            <if test="bean.versionName != null">
+                version_name = #{bean.versionName},
+            </if>
+            <if test="bean.downloadUrl != null">
+                download_url = #{bean.downloadUrl},
+            </if>
+            <if test="bean.fileSize != null">
+                file_size = #{bean.fileSize},
+            </if>
+            <if test="bean.fileMd5 != null">
+                file_md5 = #{bean.fileMd5},
+            </if>
+            <if test="bean.updateContent != null">
+                update_content = #{bean.updateContent},
+            </if>
+            <if test="bean.publishTime != null">
+                publish_time = #{bean.publishTime},
+            </if>
+            <if test="bean.createdTime != null">
+                created_time = #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time = #{bean.updatedTime},
+            </if>
+        </set>
+        where version_code=#{versionCode}
+    </update>
+
+    <!-- 根据VersionCode删除-->
+    <delete id="deleteByVersionCode">
+        delete
+        from app_version
+        where version_code = #{versionCode}
+    </delete>
+
+    <!-- 根据PrimaryKey获取对象-->
+    <select id="selectByVersionCode" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from app_version a where version_code=#{versionCode}
+    </select>
+
+    <!-- 根据VersionName修改-->
+    <update id="updateByVersionName" parameterType="AppVersion">
+        UPDATE app_version
+        <set>
+            <if test="bean.versionCode != null">
+                version_code = #{bean.versionCode},
+            </if>
+            <if test="bean.downloadUrl != null">
+                download_url = #{bean.downloadUrl},
+            </if>
+            <if test="bean.fileSize != null">
+                file_size = #{bean.fileSize},
+            </if>
+            <if test="bean.fileMd5 != null">
+                file_md5 = #{bean.fileMd5},
+            </if>
+            <if test="bean.updateContent != null">
+                update_content = #{bean.updateContent},
+            </if>
+            <if test="bean.publishTime != null">
+                publish_time = #{bean.publishTime},
+            </if>
+            <if test="bean.createdTime != null">
+                created_time = #{bean.createdTime},
+            </if>
+            <if test="bean.updatedTime != null">
+                updated_time = #{bean.updatedTime},
+            </if>
+        </set>
+        where version_name=#{versionName}
+    </update>
+
+    <!-- 根据VersionName删除-->
+    <delete id="deleteByVersionName">
+        delete
+        from app_version
+        where version_name = #{versionName}
+    </delete>
+
+    <!-- 根据PrimaryKey获取对象-->
+    <select id="selectByVersionName" resultMap="base_result_map">
+        select
+        <include refid="base_column_list"/>
+        from app_version a where version_name=#{versionName}
+    </select>
+
+    <!-- 查询最新一条版本记录（按 version_code 降序取第一条） -->
+    <select id="selectMaxVersion" resultMap="base_result_map">
+        SELECT
+        <include refid="base_column_list"/>
+        FROM app_version a
+        ORDER BY a.version_code DESC
+        LIMIT 1
+    </select>
+</mapper>

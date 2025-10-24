@@ -1,5 +1,6 @@
 package io.github.hcisme.note.redis
 
+import io.github.hcisme.note.config.AppConfig
 import jakarta.annotation.Resource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,6 +12,9 @@ import java.util.concurrent.TimeUnit
 class RedisUtils {
     @Resource
     private lateinit var redisConfigTemplate: RedisTemplate<String, Any>
+
+    @Resource
+    lateinit var appConfig: AppConfig
 
     private val logger: Logger = LoggerFactory.getLogger(RedisUtils::class.java)
 

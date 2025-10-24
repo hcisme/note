@@ -3,6 +3,10 @@ spring:
     name: Note
   profiles:
     active: dev
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
 
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/note?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&allowMultiQueries=true
@@ -40,3 +44,7 @@ mybatis:
   type-aliases-package: io.github.hcisme.note.entity.pojo,io.github.hcisme.note.entity.query
   configuration:
     map-underscore-to-camel-case: true
+
+admin:
+  account: admin_
+  password: emmmm000
