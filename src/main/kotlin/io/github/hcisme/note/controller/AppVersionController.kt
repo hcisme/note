@@ -28,7 +28,6 @@ class AppVersionController : ABaseController() {
     @Resource
     private lateinit var appConfig: AppConfig
 
-
     @Operation(summary = "上传应用相关信息")
     @CrossOrigin
     @PostMapping("/uploadAppInfo")
